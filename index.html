@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Perry Cafe — Table 1 Demo</title>
+<style>
+  :root{
+    --burgundy:#5b1f2a;
+    --burgundy2:#7a2b39;
+    --cream:#fff7e8;
+    --gold:#d6aa54;
+    --ink:#211f1d;
+    --muted:#6f6860;
+    --card:#ffffff;
+    --line:#eadfce;
+    --success:#1f7a45;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+  }
+  .top{
+    background:linear-gradient(135deg,var(--burgundy),var(--burgundy2));
+    color:white;
+    padding:22px 18px 18px;
+    position:sticky;
+    top:0;
+    z-index:10;
+    box-shadow:0 4px 14px rgba(0,0,0,.12);
+  }
+  .top-row{max-width:980px;margin:auto;display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .brand h1{font-size:25px;margin:0;font-weight:800;letter-spacing:.2px}
+  .brand p{margin:4px 0 0;opacity:.88;font-size:13px}
+  .table-badge{
+    background:var(--gold);color:#2d1d0b;font-weight:800;
+    padding:8px 11px;border-radius:999px;white-space:nowrap
+  }
+  .view-toggle{max-width:980px;margin:12px auto 0;display:flex;gap:8px}
+  .view-toggle button{
+    flex:1;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);
+    color:white;padding:9px 10px;border-radius:10px;font-weight:700
+  }
+  .view-toggle button.active{background:white;color:var(--burgundy)}
+  main{max-width:980px;margin:auto;padding:16px 14px 110px}
+  .hero{
+    background:white;border:1px solid var(--line);border-radius:18px;padding:18px;
+    box-shadow:0 6px 18px rgba(71,45,20,.06);margin-bottom:14px
+  }
+  .hero h2{margin:0 0 6px;font-size:20px}
+  .hero p{margin:0;color:var(--muted);line-height:1.45}
+  .chips{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}
+  .chip{
+    border:1px solid var(--line);background:white;color:var(--burgundy);
+    padding:9px 12px;border-radius:999px;font-weight:700;white-space:nowrap
+  }
+  .chip.active{background:var(--burgundy);color:white;border-color:var(--burgundy)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .item{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;
+    box-shadow:0 5px 14px rgba(71,45,20,.05);display:flex;flex-direction:column;min-height:142px
+  }
+  .item h3{font-size:16px;margin:0 0 5px}
+  .item p{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.35}
+  .item-bottom{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .price{font-size:18px;font-weight:800;color:var(--burgundy)}
+  .add{
+    border:0;background:var(--burgundy);color:white;padding:9px 12px;border-radius:10px;
+    font-weight:800
+  }
+  .cartbar{
+    position:fixed;left:0;right:0;bottom:0;background:white;border-top:1px solid var(--line);
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:20
+  }
+  .cartbar-inner{max-width:980px;margin:auto;display:flex;gap:10px}
+  .cart-summary{flex:1}
+  .cart-summary strong{display:block}
+  .cart-summary span{font-size:13px;color:var(--muted)}
+  .checkout{
+    border:0;background:var(--burgundy);color:white;padding:11px 16px;border-radius:12px;
+    font-weight:800;min-width:145px
+  }
+  .panel{
+    display:none;background:white;border:1px solid var(--line);border-radius:18px;padding:16px;
+    box-shadow:0 6px 18px rgba(71,45,20,.06)
+  }
+  .panel.show{display:block}
+  .cart-line{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .qtybox{display:flex;align-items:center;gap:7px}
+  .qtybox button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:white}
+  textarea{
+    width:100%;min-height:88px;border:1px solid var(--line);border-radius:12px;padding:11px;
+    font:inherit;resize:vertical
+  }
+  .primary{
+    width:100%;border:0;background:var(--burgundy);color:white;padding:13px;border-radius:12px;
+    font-weight:800;font-size:16px
+  }
+  .secondary{
+    width:100%;border:1px solid var(--burgundy);background:white;color:var(--burgundy);
+    padding:11px;border-radius:12px;font-weight:800
+  }
+  .total{display:flex;justify-content:space-between;font-weight:800;font-size:18px;padding:14px 0}
+  .notice{
+    padding:12px;border-radius:12px;background:#f7efe1;border:1px solid #ead6ae;color:#4c3a1e;
+    font-size:13px;line-height:1.4;margin:12px 0
+  }
+  .success{
+    background:#eef8f2;border:1px solid #cfe9d9;color:#185b35;padding:18px;border-radius:16px;text-align:center
+  }
+  .success .tick{font-size:42px}
+  .kitchen-order{
+    background:white;border:2px solid #222;border-radius:12px;padding:14px;margin-bottom:14px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace
+  }
+  .kitchen-order h3{margin:0 0 8px;text-align:center}
+  .ticket-row{display:flex;justify-content:space-between;gap:10px;margin:6px 0}
+  .ticket-note{border-top:1px dashed #888;border-bottom:1px dashed #888;padding:8px 0;margin:9px 0}
+  .k-actions{display:flex;gap:8px;margin-top:12px}
+  .k-actions button{flex:1;padding:10px;border-radius:10px;font-weight:800}
+  .print{background:#222;color:white;border:0}
+  .done{background:white;border:1px solid #222}
+  .empty{text-align:center;color:var(--muted);padding:26px 10px}
+  .small{font-size:12px;color:var(--muted)}
+  .footer-note{margin-top:16px;text-align:center;color:var(--muted);font-size:12px}
+  @media(max-width:650px){.grid{grid-template-columns:1fr}.brand h1{font-size:22px}}
+  @media print{
+    body *{visibility:hidden}
+    .print-target,.print-target *{visibility:visible}
+    .print-target{position:absolute;left:0;top:0;width:80mm;border:0!important;box-shadow:none!important}
+    .k-actions{display:none!important}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-row">
+    <div class="brand">
+      <h1>PERRY CAFE</h1>
+      <p>Friendly staff • Friendly atmosphere • Great food</p>
+    </div>
+    <div class="table-badge">TABLE 1</div>
+  </div>
+  <div class="view-toggle">
+    <button id="customerTab" class="active" onclick="switchView('customer')">Customer Menu</button>
+    <button id="kitchenTab" onclick="switchView('kitchen')">Kitchen Demo</button>
+  </div>
+</header>
+
+<main>
+  <section id="customerView">
+    <div class="hero">
+      <h2>Order from your table</h2>
+      <p>Choose your food and drinks, then send your order straight to the kitchen. No online payment — pay as normal at the till.</p>
+    </div>
+
+    <div class="chips" id="chips"></div>
+    <div class="grid" id="menuGrid"></div>
+
+    <div id="cartPanel" class="panel" style="margin-top:14px">
+      <h2 style="margin-top:0">Your order</h2>
+      <div id="cartLines"></div>
+      <label for="notes"><strong>Special instructions</strong></label>
+      <textarea id="notes" placeholder="e.g. no mushrooms, toast well done, allergy note..."></textarea>
+      <div class="total"><span>Total</span><span id="cartTotal">£0.00</span></div>
+      <div class="notice"><strong>No payment is taken here.</strong> Your order will be sent to the kitchen for Table 1 and you can pay using Perry Cafe's normal payment method.</div>
+      <button class="primary" onclick="placeOrder()">Place order</button>
+      <div style="height:8px"></div>
+      <button class="secondary" onclick="closeCart()">Continue ordering</button>
+    </div>
+
+    <div id="successPanel" class="panel">
+      <div class="success">
+        <div class="tick">✓</div>
+        <h2 style="margin:5px 0">Order sent to kitchen</h2>
+        <p style="margin:0">Table 1 • <span id="successOrderNo"></span></p>
+      </div>
+      <div style="height:12px"></div>
+      <button class="primary" onclick="newOrder()">Start another order</button>
+    </div>
+  </section>
+
+  <section id="kitchenView" style="display:none">
+    <div class="hero">
+      <h2>Kitchen order screen</h2>
+      <p>This demonstrates what Perry Cafe staff would receive when a customer submits an order. Each order includes the table number and can be printed as a kitchen ticket.</p>
+    </div>
+    <div id="kitchenOrders"></div>
+    <div class="footer-note">Demo only — live installation can connect this workflow to a compatible thermal printer.</div>
+  </section>
+</main>
+
+<div class="cartbar" id="cartbar">
+  <div class="cartbar-inner">
+    <div class="cart-summary">
+      <strong id="cartCount">0 items</strong>
+      <span id="cartMiniTotal">£0.00</span>
+    </div>
+    <button class="checkout" onclick="openCart()">View order</button>
+  </div>
+</div>
+
+<script>
+const MENU = [
+  {id:1, category:"Jacket Potatoes", name:"Plain Jacket Potato", price:5.10, desc:"Freshly prepared jacket potato."},
+  {id:2, category:"Jacket Potatoes", name:"Cheese Jacket Potato", price:6.10, desc:"Jacket potato with cheese."},
+  {id:3, category:"Jacket Potatoes", name:"Beans Jacket Potato", price:6.10, desc:"Jacket potato with baked beans."},
+  {id:4, category:"Jacket Potatoes", name:"Tuna Mayo Jacket Potato", price:6.30, desc:"Jacket potato with tuna mayonnaise."},
+  {id:5, category:"Jacket Potatoes", name:"Prawns Jacket Potato", price:7.50, desc:"Jacket potato with prawns."},
+  {id:6, category:"Hot Drinks", name:"Coffee", price:2.00, desc:"Fresh hot coffee."},
+  {id:7, category:"Hot Drinks", name:"Latte", price:2.60, desc:"Freshly made latte."},
+  {id:8, category:"Hot Drinks", name:"Tea", price:1.60, desc:"Classic hot tea."},
+  {id:9, category:"Hot Drinks", name:"Cappuccino", price:2.60, desc:"Freshly made cappuccino."},
+  {id:10, category:"Hot Drinks", name:"Hot Chocolate", price:2.20, desc:"Hot chocolate."},
+  {id:11, category:"Soft Drinks", name:"Can", price:1.70, desc:"Coke, Diet Coke, 7up, Fanta, Dr Pepper or Lilt."},
+  {id:12, category:"Soft Drinks", name:"Milkshake", price:3.30, desc:"Classic milkshake."},
+  {id:13, category:"Soft Drinks", name:"Orange Juice", price:2.40, desc:"Orange juice."},
+  {id:14, category:"Desserts", name:"Cherry Pancake", price:4.90, desc:"Cherry filling, ice cream and syrup."},
+  {id:15, category:"Desserts", name:"Chocolate Pancake", price:4.90, desc:"Ice cream, cream and chocolate sauce."},
+  {id:16, category:"Desserts", name:"Plain Pancake", price:3.80, desc:"Plain pancake."},
+  {id:17, category:"Desserts", name:"Apple Pie", price:4.70, desc:"With ice cream or custard."},
+  {id:18, category:"Desserts", name:"Cherry Pie", price:4.70, desc:"With ice cream or custard."}
+];
+
+let cart = {};
+let activeCategory = "All";
+const fmt = n => "£" + n.toFixed(2);
+
+function renderChips(){
+  const cats = ["All", ...new Set(MENU.map(x=>x.category))];
+  document.getElementById("chips").innerHTML = cats.map(c =>
+    `<button class="chip ${c===activeCategory?'active':''}" onclick="setCategory('${c.replace(/'/g,"\\'")}')">${c}</button>`
+  ).join("");
+}
+function setCategory(c){activeCategory=c;renderChips();renderMenu();}
+function renderMenu(){
+  const items = activeCategory==="All" ? MENU : MENU.filter(x=>x.category===activeCategory);
+  document.getElementById("menuGrid").innerHTML = items.map(i=>`
+    <article class="item">
+      <h3>${i.name}</h3>
+      <p>${i.desc}</p>
+      <div class="item-bottom">
+        <div class="price">${fmt(i.price)}</div>
+        <button class="add" onclick="addItem(${i.id})">Add</button>
+      </div>
+    </article>`).join("");
+}
+function addItem(id){cart[id]=(cart[id]||0)+1;updateCartBar();}
+function changeQty(id,d){
+  cart[id]=(cart[id]||0)+d;
+  if(cart[id]<=0) delete cart[id];
+  renderCart();updateCartBar();
+}
+function cartItems(){
+  return Object.entries(cart).map(([id,qty])=>({item:MENU.find(x=>x.id==id), qty}));
+}
+function totals(){
+  const arr=cartItems(); const count=arr.reduce((a,b)=>a+Number(b.qty),0);
+  const total=arr.reduce((a,b)=>a+b.item.price*Number(b.qty),0);
+  return {count,total};
+}
+function updateCartBar(){
+  const t=totals();
+  document.getElementById("cartCount").textContent = `${t.count} item${t.count===1?'':'s'}`;
+  document.getElementById("cartMiniTotal").textContent = fmt(t.total);
+  document.getElementById("checkout").disabled = t.count===0;
+}
+function renderCart(){
+  const arr=cartItems();
+  document.getElementById("cartLines").innerHTML = arr.length ? arr.map(x=>`
+    <div class="cart-line">
+      <div><strong>${x.item.name}</strong><div class="small">${fmt(x.item.price)} each</div></div>
+      <div style="text-align:right">
+        <div class="qtybox">
+          <button onclick="changeQty(${x.item.id},-1)">−</button>
+          <strong>${x.qty}</strong>
+          <button onclick="changeQty(${x.item.id},1)">+</button>
+        </div>
+        <div class="small" style="margin-top:5px">${fmt(x.item.price*x.qty)}</div>
+      </div>
+    </div>`).join("") : `<div class="empty">Your order is empty.</div>`;
+  document.getElementById("cartTotal").textContent = fmt(totals().total);
+}
+function openCart(){
+  if(totals().count===0) return;
+  document.getElementById("menuGrid").style.display="none";
+  document.getElementById("chips").style.display="none";
+  document.querySelector("#customerView .hero").style.display="none";
+  document.getElementById("cartPanel").classList.add("show");
+  document.getElementById("cartbar").style.display="none";
+  renderCart();
+}
+function closeCart(){
+  document.getElementById("menuGrid").style.display="grid";
+  document.getElementById("chips").style.display="flex";
+  document.querySelector("#customerView .hero").style.display="block";
+  document.getElementById("cartPanel").classList.remove("show");
+  document.getElementById("cartbar").style.display="block";
+}
+function placeOrder(){
+  if(totals().count===0) return;
+  const orders=JSON.parse(localStorage.getItem("perry_demo_orders")||"[]");
+  const orderNo = "PC-" + String(1001 + orders.length);
+  const order={
+    orderNo, table:1, createdAt:new Date().toISOString(),
+    items:cartItems().map(x=>({name:x.item.name, price:x.item.price, qty:Number(x.qty)})),
+    notes:document.getElementById("notes").value.trim(),
+    total:totals().total
+  };
+  orders.unshift(order);
+  localStorage.setItem("perry_demo_orders",JSON.stringify(orders));
+  document.getElementById("cartPanel").classList.remove("show");
+  document.getElementById("successPanel").classList.add("show");
+  document.getElementById("successOrderNo").textContent=orderNo;
+  renderKitchen();
+}
+function newOrder(){
+  cart={};document.getElementById("notes").value="";
+  document.getElementById("successPanel").classList.remove("show");
+  document.getElementById("menuGrid").style.display="grid";
+  document.getElementById("chips").style.display="flex";
+  document.querySelector("#customerView .hero").style.display="block";
+  document.getElementById("cartbar").style.display="block";
+  updateCartBar();
+}
+function switchView(view){
+  const customer=view==="customer";
+  document.getElementById("customerView").style.display=customer?"block":"none";
+  document.getElementById("kitchenView").style.display=customer?"none":"block";
+  document.getElementById("customerTab").classList.toggle("active",customer);
+  document.getElementById("kitchenTab").classList.toggle("active",!customer);
+  document.getElementById("cartbar").style.display=customer && !document.getElementById("cartPanel").classList.contains("show") ? "block":"none";
+  if(!customer) renderKitchen();
+}
+function renderKitchen(){
+  const orders=JSON.parse(localStorage.getItem("perry_demo_orders")||"[]");
+  const box=document.getElementById("kitchenOrders");
+  if(!orders.length){box.innerHTML=`<div class="panel show empty">No orders yet. Place a demo order from the Customer Menu first.</div>`;return;}
+  box.innerHTML=orders.map((o,idx)=>{
+    const d=new Date(o.createdAt);
+    return `<div class="kitchen-order print-target" id="ticket-${idx}">
+      <h3>PERRY CAFE</h3>
+      <div style="text-align:center;font-weight:800;font-size:22px">TABLE ${o.table}</div>
+      <div style="text-align:center">${o.orderNo} • ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+      <hr>
+      ${o.items.map(x=>`<div class="ticket-row"><span>${x.qty} × ${x.name}</span><span>${fmt(x.qty*x.price)}</span></div>`).join("")}
+      ${o.notes?`<div class="ticket-note"><strong>NOTES:</strong><br>${o.notes}</div>`:""}
+      <div class="ticket-row" style="font-weight:800;border-top:1px solid #222;padding-top:8px"><span>TOTAL</span><span>${fmt(o.total)}</span></div>
+      <div style="text-align:center;margin-top:8px;font-weight:800">PAY AT TILL</div>
+      <div class="k-actions">
+        <button class="print" onclick="printTicket(${idx})">Print ticket</button>
+        <button class="done" onclick="markDone(${idx})">Mark done</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function printTicket(idx){
+  document.querySelectorAll(".kitchen-order").forEach(x=>x.classList.remove("print-target"));
+  document.getElementById("ticket-"+idx).classList.add("print-target");
+  window.print();
+}
+function markDone(idx){
+  const orders=JSON.parse(localStorage.getItem("perry_demo_orders")||"[]");
+  orders.splice(idx,1);
+  localStorage.setItem("perry_demo_orders",JSON.stringify(orders));
+  renderKitchen();
+}
+renderChips();renderMenu();updateCartBar();renderKitchen();
+</script>
+</body>
+</html>
