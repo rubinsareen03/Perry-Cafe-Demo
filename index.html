@@ -126,7 +126,7 @@
   .empty{text-align:center;color:var(--muted);padding:26px 10px}
   .small{font-size:12px;color:var(--muted)}
   .footer-note{margin-top:16px;text-align:center;color:var(--muted);font-size:12px}
-  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;align-items:flex-end;justify-content:center}.modal-card{background:white;width:min(680px,100%);max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}.x{position:absolute;right:14px;top:12px;border:0;background:#eee;width:34px;height:34px;border-radius:50%;font-size:24px}.opt{display:block;padding:10px 0;border-bottom:1px solid var(--line)}details{margin:12px 0;border:1px solid var(--line);border-radius:12px;padding:12px}summary{cursor:pointer}.extra{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.extra button{width:30px;height:30px;border:1px solid var(--line);background:white;border-radius:8px;margin:0 7px} @media(max-width:650px){.grid{grid-template-columns:1fr}.brand h1{font-size:22px}}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;align-items:flex-end;justify-content:center}.modal-card{background:white;width:min(680px,100%);max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}.x{position:absolute;right:14px;top:12px;border:0;background:#eee;width:34px;height:34px;border-radius:50%;font-size:24px}.opt{display:block;padding:10px 0;border-bottom:1px solid var(--line)}details{margin:12px 0;border:1px solid var(--line);border-radius:12px;padding:12px}summary{cursor:pointer}.extra{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.extra button{width:30px;height:30px;border:1px solid var(--line);background:white;border-radius:8px;margin:0 7px}.included-box{margin:14px 0 18px;padding:13px 14px;background:#fff7e8;border:1px solid var(--line);border-radius:12px;line-height:1.45}.included-box b{display:block;color:var(--burgundy);margin-bottom:4px}.top.compact{padding-top:10px;padding-bottom:10px}.top.compact .brand p{display:none}.top.compact .view-toggle{margin-top:7px}.top{transition:padding .2s ease} @media(max-width:650px){.grid{grid-template-columns:1fr}.brand h1{font-size:22px}}
   @media print{
     body *{visibility:hidden}
     .print-target,.print-target *{visibility:visible}
@@ -252,11 +252,11 @@ const MENU=[
 ];
 let cart=[],activeCategory='All',editing=null;
 const fmt=n=>'£'+Number(n).toFixed(2); const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-function renderChips(){const cats=['All',...new Set(MENU.map(x=>x.category))];chips.innerHTML=cats.map(c=>`<button class="chip ${c===activeCategory?'active':''}" onclick="setCategory(${JSON.stringify(c)})">${c}</button>`).join('')}
+function renderChips(){const cats=['All',...new Set(MENU.map(x=>x.category))];chips.innerHTML=cats.map(c=>`<button class="chip ${c===activeCategory?'active':''}" data-category="${esc(c)}">${esc(c)}</button>`).join('');chips.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>setCategory(b.dataset.category)))}
 function setCategory(c){activeCategory=c;renderChips();renderMenu()}
 function renderMenu(){const a=activeCategory==='All'?MENU:MENU.filter(x=>x.category===activeCategory);menuGrid.innerHTML=a.map(i=>`<article class="item"><h3>${i.name}</h3><p>${i.desc||'Made to order.'}</p><div class="item-bottom"><div class="price">${fmt(i.price)}</div><button class="add" onclick="configure(${i.id})">${i.mods?'Customise':'Add'}</button></div></article>`).join('')}
 function configure(id){const i=MENU.find(x=>x.id===id); if(!i.mods){addConfigured(i,{});return} editing={item:i,remove:[],extras:{},sauce:'',choice:'',note:''}; showModal()}
-function showModal(){let e=editing,m=e.item.mods||{},html=`<div class="modal-card"><button class="x" onclick="closeModal()">×</button><h2>${e.item.name}</h2><div class="price">${fmt(e.item.price)}</div>`;
+function showModal(){let e=editing,m=e.item.mods||{},html=`<div class="modal-card"><button class="x" onclick="closeModal()">×</button><h2>${e.item.name}</h2><div class="price">${fmt(e.item.price)}</div>${e.item.desc?`<div class="included-box"><b>Includes:</b><div>${esc(e.item.desc)}</div></div>`:''}`;
  if(m.remove?.length) html+=`<h3>Remove an item <span class="small">(Free)</span></h3>${m.remove.map(x=>`<label class="opt"><input type="checkbox" onchange="toggleRemove('${x.replace(/'/g,"\\'")}')"> No ${x}</label>`).join('')}`;
  if(m.sauce) html+=`<h3>Choose another sauce <span class="small">(optional)</span></h3>${m.sauce.map(x=>`<label class="opt"><input type="radio" name="sauce" onchange="editing.sauce='${x.replace(/'/g,"\\'")}'"> ${x}</label>`).join('')}`;
  if(m.choice) html+=`<h3>${m.choice.label}</h3>${m.choice.options.map(x=>`<label class="opt"><input type="radio" name="choice" onchange="editing.choice='${x.replace(/'/g,"\\'")}'"> ${x}</label>`).join('')}`;
@@ -297,6 +297,7 @@ const kitchenView=document.getElementById('kitchenView');
 const customerTab=document.getElementById('customerTab');
 const kitchenTab=document.getElementById('kitchenTab');
 const kitchenOrders=document.getElementById('kitchenOrders');
+let lastScrollY=0;window.addEventListener('scroll',()=>{const y=window.scrollY||0;document.querySelector('.top').classList.toggle('compact',y>80);lastScrollY=y},{passive:true});
 renderChips();renderMenu();updateCartBar();renderKitchen();
 </script>
 </body>
