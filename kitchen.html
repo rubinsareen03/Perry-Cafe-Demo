@@ -62,7 +62,7 @@ if (Array.isArray(x?.remove) && x.remove.length) details.push('REMOVE: ' + x.rem
     details.push('EXTRA: ' + x.extras.map(e => typeof e === 'string' ? e : (e.name || e.label || '')).filter(Boolean).join(', '));
   }
   if (x?.customText) details.push(x.customText);
-  if (x?.notes) details.push(x.notes);
+if (x?.note) details.push('NOTE: ' + x.note);
   return `<div class="item"><strong>${esc(qty)} × ${esc(name)}</strong>${details.length ? `<div class="mods">${esc(details.join('\n'))}</div>` : ''}</div>`;
 }
 
