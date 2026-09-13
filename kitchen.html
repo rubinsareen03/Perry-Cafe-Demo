@@ -57,7 +57,7 @@ function describeItem(x) {
   const qty = x?.qty ?? x?.quantity ?? 1;
   const name = x?.name ?? x?.title ?? x?.item ?? 'Item';
   let details = [];
-  if (Array.isArray(x?.removed) && x.removed.length) details.push('NO: ' + x.removed.join(', '));
+if (Array.isArray(x?.remove) && x.remove.length) details.push('REMOVE: ' + x.remove.join(', '));
   if (Array.isArray(x?.extras) && x.extras.length) {
     details.push('EXTRA: ' + x.extras.map(e => typeof e === 'string' ? e : (e.name || e.label || '')).filter(Boolean).join(', '));
   }
