@@ -1,0 +1,170 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Perry Cafe — Order</title>
+<style>
+:root{--b:#5b1f2a;--b2:#7a2b39;--cream:#fff7e8;--gold:#d6aa54;--ink:#211f1d;--muted:#6f6860;--line:#eadfce}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--cream);color:var(--ink)}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:18px 16px;box-shadow:0 3px 12px #0002}.head{max-width:980px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-size:25px;font-weight:900}.tag{font-size:13px;opacity:.9;margin-top:3px}.badge{background:var(--gold);color:#2d1d0b;font-weight:900;padding:9px 12px;border-radius:999px}
+main{max-width:980px;margin:auto;padding:14px 14px 110px}.hero,.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}.hero h2{margin:0 0 5px}.hero p{margin:0;color:var(--muted)}.chips{display:flex;gap:8px;overflow:auto;padding:2px 0 12px}.category-note{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.45}.category-note strong{color:var(--b)}.chip{border:1px solid var(--line);background:#fff;color:var(--b);padding:9px 12px;border-radius:999px;font-weight:800;white-space:nowrap}.chip.active{background:var(--b);color:#fff}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.item{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;display:flex;flex-direction:column;min-height:135px}.item h3{margin:0 0 5px;font-size:16px}.item p{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.35}.bottom{margin-top:auto;display:flex;justify-content:space-between;align-items:center}.price{font-size:18px;font-weight:900;color:var(--b)}button{font:inherit}.add,.primary{border:0;background:var(--b);color:#fff;font-weight:900;border-radius:11px;padding:10px 13px}.primary{width:100%;padding:13px}.secondary{width:100%;border:1px solid var(--b);background:#fff;color:var(--b);font-weight:900;border-radius:11px;padding:11px}.cartbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:20;padding:10px 14px calc(10px + env(safe-area-inset-bottom))}.cartin{max-width:980px;margin:auto;display:flex;align-items:center;gap:12px}.cartsummary{flex:1}.cartsummary strong{display:block}.small,.cartsummary span{font-size:12px;color:var(--muted)}.checkout{border:0;background:var(--b);color:#fff;font-weight:900;padding:12px 16px;border-radius:12px}.panel{display:none}.panel.show{display:block}.line{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}.total{display:flex;justify-content:space-between;font-size:19px;font-weight:900;padding:14px 0}textarea{width:100%;min-height:82px;border:1px solid var(--line);border-radius:11px;padding:10px;font:inherit}.notice{background:#f7efe1;border:1px solid #ead6ae;padding:11px;border-radius:11px;font-size:13px;margin:12px 0}.modal{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:flex-end;justify-content:center}.modalcard{background:#fff;width:min(680px,100%);max-height:90vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}.x{position:absolute;right:13px;top:12px;border:0;border-radius:50%;width:34px;height:34px;font-size:23px}.inc{background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:12px;margin:12px 0}.opt{display:block;padding:10px 0;border-bottom:1px solid var(--line)}details{border:1px solid var(--line);border-radius:12px;padding:11px;margin:12px 0}.extra{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:9px 0}.extra button{width:31px;height:31px;border:1px solid var(--line);background:#fff;border-radius:8px}.success{text-align:center;background:#eef8f2;border:1px solid #cfe9d9;color:#185b35;border-radius:15px;padding:20px}.tick{font-size:42px}@media(max-width:650px){.grid{grid-template-columns:1fr}.brand{font-size:22px}}
+</style></head><body>
+<header><div class="head"><div><div class="brand">PERRY CAFE</div><div class="tag">Friendly staff • Friendly atmosphere • Great food</div></div><div class="badge" id="badge"></div></div></header>
+<main><section id="menuView"><div class="hero"><h2>Order from your table</h2><p>Choose your food and drinks, then send your order straight to the kitchen. No online payment — pay as normal at the till.</p></div><div class="chips" id="chips"></div>
+    <div id="categoryNote" class="category-note" style="display:none"></div><div class="grid" id="grid"></div></section>
+<section id="cartPanel" class="panel"><h2>Your order</h2><div id="cartLines"></div><h3>Order instructions</h3><textarea id="orderNote" placeholder="Any instruction for the whole order"></textarea><div class="total"><span>Total</span><span id="cartTotal"></span></div><div class="notice">Order will be sent to the kitchen for <b>Table <span id="tableText"></span></b>.</div><button class="primary" id="place">Place order</button><br><br><button class="secondary" id="continue">Continue ordering</button></section>
+<section id="successPanel" class="panel"><div class="success"><div class="tick">✓</div><h2>Order sent to kitchen</h2><p>Table <span id="successTable"></span> • <span id="ref"></span></p></div><br><button class="primary" id="again">Start another order</button></section></main>
+<div class="modal" id="modal"></div><div class="cartbar" id="cartbar"><div class="cartin"><div class="cartsummary"><strong id="count">0 items</strong><span id="mini">£0.00</span></div><button class="checkout" id="view">View order</button></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+const TABLE=Math.min(22,Math.max(1,Number(new URLSearchParams(location.search).get('table'))||1));
+let db=null;
+try{
+  if(window.supabase){
+    db=window.supabase.createClient(
+      'https://plwtpcqwjfqzpkrnlzfq.supabase.co',
+      'sb_publishable_gxMkbIdN_JF3A7PSv3OXVQ_RL_LTmKi'
+    );
+  }
+}catch(e){ console.error('Supabase init failed:',e); }
+
+const BREAKFAST_EXTRAS = [["Fried Slice (1 pc)", 1.1], ["Toast (2 slices)", 1.6], ["Egg", 0.8], ["Scrambled Egg (2 eggs)", 3.2], ["Beans", 1.8], ["Coleslaw", 1.8], ["Tomato", 1.8], ["Mushrooms", 2.1], ["Fried Onions", 1.8], ["Onion Rings (8 pcs)", 2.7], ["Beef Burger", 2.5], ["Ham", 2.5], ["Bacon (2 rashers)", 2.7], ["Frankfurter", 2.1], ["Liver", 3.0], ["Black Pudding (3 pcs)", 2.1], ["Sausage (1 pc)", 2.1], ["Bubble", 2.2], ["Chips", 2.5], ["Mash Potato", 2.5], ["Hash Brown", 2.0]];
+const breakfast=(id,name,price,desc,remove)=>({id,category:'All Day Breakfast',name,price,desc,mods:{remove,extras:BREAKFAST_EXTRAS}});
+const sideChoice={label:'Choose side',options:['Chips with coleslaw','Salad with coleslaw']};
+const MENU=[
+ breakfast(1,'Small Breakfast',6.20,'Egg, 2 bacon, sausage, beans',['Egg','Bacon','Sausage','Beans']),
+ breakfast(2,'Traditional Breakfast',7.20,'Egg, 2 bacon, sausage, chips, beans',['Egg','Bacon','Sausage','Chips','Beans']),
+ breakfast(3,'Early Starter',8.20,'Scrambled egg, 2 bacon, 2 hash browns, tomatoes, beans',['Scrambled Egg','Bacon','Hash Browns','Tomatoes','Beans']),
+ breakfast(4,'The Brunch Breakfast',8.50,'2 eggs, 2 bacon, 2 sausages, tomatoes, mushrooms',['Eggs','Bacon','Sausages','Tomatoes','Mushrooms']),
+ breakfast(5,'Perry Special',8.90,'Egg, 2 bacon, sausage, black pudding, bubble, beans',['Egg','Bacon','Sausage','Black Pudding','Bubble','Beans']),
+ breakfast(6,'Classic Breakfast',9.20,'2 eggs, 2 bacon, 2 sausages, beans, mushrooms, tomato',['Eggs','Bacon','Sausages','Beans','Mushrooms','Tomato']),
+ breakfast(7,'Sunrise Breakfast',10.40,'2 eggs, 2 bacon, 2 sausages, chips, 2 hash browns, mushrooms, tomato, beans',['Eggs','Bacon','Sausages','Chips','Hash Browns','Mushrooms','Tomato','Beans']),
+ breakfast(8,'Burger Grill',8.90,'Egg, 2 burgers, onion, chips & beans',['Egg','Burgers','Onion','Chips','Beans']),
+ breakfast(9,'Veggie 1',8.20,'1 veggie sausage, bubble, beans, mushrooms, 2 hash browns',['Veggie Sausage','Bubble','Beans','Mushrooms','Hash Browns']),
+ breakfast(10,'Veggie 2',8.20,'Tomatoes, mushrooms, beans, sauté potatoes, 6 onion rings',['Tomatoes','Mushrooms','Beans','Sauté Potatoes','Onion Rings']),
+ breakfast(11,'Veggie 3',8.20,'Scrambled egg, 2 hash browns, beans, tomatoes, mushrooms',['Scrambled Egg','Hash Browns','Beans','Tomatoes','Mushrooms']),
+
+ {id:20,category:'On Toast',name:'Egg on 1 Toast & Beans on 1 Toast',price:4.50,desc:''},
+ {id:21,category:'On Toast',name:'Cheese on 2 Toast',price:4.40,desc:''},
+ {id:22,category:'On Toast',name:'2 Poached Eggs on 2 Toast',price:4.50,desc:''},
+ {id:23,category:'On Toast',name:'Scrambled Egg on 2 Toast',price:4.90,desc:'3 eggs'},
+
+ ...[
+ ['Plain Omelette',6.00],['Cheese Omelette',7.10],['Ham Omelette',7.10],['Mushroom Omelette',7.10],
+ ['Ham, Cheese & Mushroom Omelette',8.10],['Spanish Omelette',8.10],['Bacon, Sausage & Ham Omelette',9.20],['Ham & Cheese Omelette',7.70]
+ ].map((x,i)=>({id:30+i,category:'Omelettes',name:x[0],price:x[1],desc:'Made with 3 eggs. Served with a choice of chips with coleslaw or salad with coleslaw.',mods:{choice:sideChoice}})),
+
+ {id:50,category:'Speciality Grills',name:'Ham, Egg & Chips',price:6.90,desc:''},
+ {id:51,category:'Speciality Grills',name:'Mega Mixed Grill',price:11.40,desc:''},
+ {id:52,category:'Speciality Grills',name:'Egg & Mixed Vegetable Grill',price:9.40,desc:''},
+ {id:53,category:'Speciality Grills',name:'Country Vegetable Grill',price:9.40,desc:''},
+ {id:54,category:'Speciality Grills',name:'Liver, Bacon, Chips, Onions & Peas',price:9.70,desc:''},
+ {id:55,category:'Speciality Grills',name:'Gammon Steak',price:9.90,desc:''},
+ {id:56,category:'Speciality Grills',name:'Lamb Chops, Chips & Peas',price:9.40,desc:''},
+ {id:57,category:'Speciality Grills',name:'Shepherd’s Pie',price:9.40,desc:''},
+ {id:58,category:'Speciality Grills',name:'Roast Lamb',price:9.40,desc:''},
+ {id:59,category:'Speciality Grills',name:'Roast Beef',price:9.40,desc:''},
+ {id:60,category:'Speciality Grills',name:'Roast Chicken',price:9.40,desc:''},
+
+ {id:70,category:'Burgers',name:'Hamburger',price:3.30,desc:'Burger.'},
+ {id:71,category:'Burgers',name:'Cheeseburger',price:4.30,desc:'Cheeseburger.'},
+ {id:72,category:'Burgers',name:'Veggie Burger',price:4.80,desc:'Veggie burger.'},
+ {id:73,category:'Burgers',name:'Spicy Bean Burger',price:4.80,desc:'Spicy bean burger.'},
+ {id:74,category:'Burgers',name:'Chicken Burger in a Bun',price:4.80,desc:'Chicken burger in a bun.'},
+
+ {id:80,category:'Grilled Chicken',name:'Tender Quarter Chicken',price:9.20,desc:'With chips & salad.'},
+ {id:81,category:'Grilled Chicken',name:'Golden Chicken Nuggets',price:7.80,desc:'8 pieces with chips & salad.'},
+ {id:82,category:'Grilled Chicken',name:'Chicken Platter',price:9.20,desc:'Grilled chicken, boiled potato, carrot, cabbage & peas.'},
+ {id:83,category:'Grilled Chicken',name:'Chicken Delight',price:9.20,desc:'Grilled chicken with chips, salad & coleslaw.'},
+
+ {id:90,category:'Fish',name:'Cod',price:8.50,desc:'With chips & salad.'},
+ {id:91,category:'Fish',name:'Scampi',price:8.50,desc:'10 pieces with chips & salad.'},
+ {id:100,category:'Pies',name:'Steak & Kidney Pie',price:7.80,desc:'With chips & peas.'},
+ {id:101,category:'Pies',name:'Chicken & Mushroom Pie',price:7.80,desc:'With chips & peas.'},
+
+ {id:110,category:'Curry & Pasta',name:'Spaghetti Bolognese',price:7.80,desc:''},
+ {id:111,category:'Curry & Pasta',name:'Lasagne',price:8.30,desc:'With chips & salad.',mods:{choice:{label:'Salad option',options:['With salad','No salad']}}},
+ {id:112,category:'Curry & Pasta',name:'Chicken Curry',price:8.50,desc:'With rice or chips.',mods:{choice:{label:'Choose side',options:['Rice','Chips']}}},
+
+ {id:120,category:'Salads',name:'Chicken Salad',price:7.90,desc:'Fresh salad with lettuce, tomatoes, cucumber, onions & coleslaw.',mods:{remove:['Lettuce','Tomatoes','Cucumber','Onions','Coleslaw']}},
+ {id:121,category:'Salads',name:'Cheese Salad',price:6.80,desc:'Fresh salad with lettuce, tomatoes, cucumber, onions & coleslaw.',mods:{remove:['Lettuce','Tomatoes','Cucumber','Onions','Coleslaw']}},
+ {id:122,category:'Salads',name:'Prawn Salad',price:9.20,desc:'Fresh salad with lettuce, tomatoes, cucumber, onions & coleslaw.',mods:{remove:['Lettuce','Tomatoes','Cucumber','Onions','Coleslaw']}},
+ {id:123,category:'Salads',name:'Ham Salad',price:7.40,desc:'Fresh salad with lettuce, tomatoes, cucumber, onions & coleslaw.',mods:{remove:['Lettuce','Tomatoes','Cucumber','Onions','Coleslaw']}},
+
+ {id:130,category:'Sandwiches',name:"Egg",price:3.80,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',3.80],['Baguette',4.30],['Panini',4.50]]}}},
+ {id:131,category:'Sandwiches',name:"Bacon",price:4.10,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',4.10],['Baguette',4.50],['Panini',4.70]]}}},
+ {id:132,category:'Sandwiches',name:"Sausage",price:4.10,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',4.10],['Baguette',4.50],['Panini',4.70]]}}},
+ {id:133,category:'Sandwiches',name:"Egg Bacon",price:4.50,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',4.50],['Baguette',4.90],['Panini',5.10]]}}},
+ {id:134,category:'Sandwiches',name:"Egg Sausage",price:4.50,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',4.50],['Baguette',4.90],['Panini',5.10]]}}},
+ {id:135,category:'Sandwiches',name:"Egg, Bacon & Sausage",price:4.50,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',4.50],['Baguette',4.90],['Panini',5.10]]}}},
+ {id:136,category:'Sandwiches',name:"B.L.T.",price:5.30,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',5.30],['Baguette',5.70],['Panini',5.90]]}}},
+ {id:137,category:'Sandwiches',name:"Ham & Cheese",price:5.00,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',5.00],['Baguette',5.30],['Panini',5.50]]}}},
+ {id:138,category:'Sandwiches',name:"Tuna Mayo",price:5.00,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',5.00],['Baguette',5.30],['Panini',5.50]]}}},
+ {id:139,category:'Sandwiches',name:"Chicken Salad",price:5.80,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',5.80],['Baguette',6.20],['Panini',6.70]]}}},
+ {id:140,category:'Sandwiches',name:"Prawn",price:6.20,desc:'Made to order.',mods:{pricedChoice:{label:'Choose bread',options:[['Sandwich',6.20],['Baguette',6.80],['Panini',7.00]]}}},
+
+ {id:150,category:'Jacket Potatoes',name:'Plain',price:5.10,desc:'Jacket potato.',mods:{extras:[['Extra Topping',1.90]]}},
+ {id:151,category:'Jacket Potatoes',name:'Cheese',price:6.10,desc:'Jacket potato with cheese.',mods:{extras:[['Extra Topping',1.90]]}},
+ {id:152,category:'Jacket Potatoes',name:'Beans',price:6.10,desc:'Jacket potato with beans.',mods:{extras:[['Extra Topping',1.90]]}},
+ {id:153,category:'Jacket Potatoes',name:'Tuna Mayo',price:6.30,desc:'Jacket potato with tuna mayo.',mods:{extras:[['Extra Topping',1.90]]}},
+ {id:154,category:'Jacket Potatoes',name:'Coleslaw',price:5.80,desc:'Jacket potato with coleslaw.',mods:{extras:[['Extra Topping',1.90]]}},
+ {id:155,category:'Jacket Potatoes',name:'Sweetcorn',price:5.80,desc:'Jacket potato with sweetcorn.',mods:{extras:[['Extra Topping',1.90]]}},
+ {id:156,category:'Jacket Potatoes',name:'Prawns',price:7.50,desc:'Jacket potato with prawns.',mods:{extras:[['Extra Topping',1.90]]}},
+ {id:157,category:'Jacket Potatoes',name:'Bolognese',price:7.50,desc:'Jacket potato with bolognese.',mods:{extras:[['Extra Topping',1.90]]}},
+ {id:158,category:'Jacket Potatoes',name:'Chilli Con Carne',price:6.90,desc:'Jacket potato with chilli con carne.',mods:{extras:[['Extra Topping',1.90]]}},
+
+ {id:170,category:'Hot Drinks',name:'Coffee',price:2.00,desc:''},{id:171,category:'Hot Drinks',name:'Latte',price:2.60,desc:''},
+ {id:172,category:'Hot Drinks',name:'Tea',price:1.60,desc:''},{id:173,category:'Hot Drinks',name:'Green Tea',price:2.00,desc:''},
+ {id:174,category:'Hot Drinks',name:'Cappuccino',price:2.60,desc:''},{id:175,category:'Hot Drinks',name:'Hot Chocolate',price:2.20,desc:''},
+ {id:176,category:'Hot Drinks',name:'Filter Coffee',price:2.40,desc:''},
+
+ {id:180,category:'Soft Drinks',name:'Cans',price:1.70,desc:'Coke, Diet Coke, 7up, Fanta, Dr Pepper, Lilt.',mods:{choice:{label:'Choose drink',options:['Coke','Diet Coke','7up','Fanta','Dr Pepper','Lilt']}}},
+ {id:181,category:'Soft Drinks',name:'Milkshake',price:3.30,desc:''},{id:182,category:'Soft Drinks',name:'Orange Juice',price:2.40,desc:''},
+ {id:183,category:'Soft Drinks',name:'Apple Juice',price:2.40,desc:''},{id:184,category:'Soft Drinks',name:'Red Bull',price:2.50,desc:''},
+
+ {id:190,category:'Desserts',name:'Cherry Pancake',price:4.90,desc:'Cherry filling, ice cream and syrup.'},
+ {id:191,category:'Desserts',name:'Chocolate Pancake',price:4.90,desc:'Ice cream, cream & chocolate sauce.'},
+ {id:192,category:'Desserts',name:'Plain Pancake',price:3.80,desc:''},
+ {id:193,category:'Desserts',name:'Cake',price:3.50,desc:'Carrot, chocolate, or special cakes.',mods:{choice:{label:'Choose cake',options:['Carrot','Chocolate','Special cake']}}},
+ {id:194,category:'Desserts',name:'Knickerbocker Glory',price:4.50,desc:''},{id:195,category:'Desserts',name:'Ice Cream',price:2.80,desc:''},
+ {id:196,category:'Desserts',name:'Apple Pie',price:4.70,desc:'With ice cream or custard.',mods:{choice:{label:'Choose',options:['Ice cream','Custard']}}},
+ {id:197,category:'Desserts',name:'Cherry Pie',price:4.70,desc:'With ice cream or custard.',mods:{choice:{label:'Choose',options:['Ice cream','Custard']}}},
+
+ {id:210,category:'Kids Menu',name:'4 Nuggets, Chips, Beans',price:5.50,desc:'Served with carton of apple or orange juice.',mods:{choice:{label:'Choose juice',options:['Apple juice','Orange juice']}}},
+ {id:211,category:'Kids Menu',name:'Sausage, Chips, Beans',price:5.50,desc:'Served with carton of apple or orange juice.',mods:{choice:{label:'Choose juice',options:['Apple juice','Orange juice']}}},
+ {id:212,category:'Kids Menu',name:'Small Plain Burger, Chips',price:5.50,desc:'Served with carton of apple or orange juice.',mods:{choice:{label:'Choose juice',options:['Apple juice','Orange juice']}}},
+ {id:213,category:'Kids Menu',name:'4 Fish Fingers, Chips, Beans',price:5.50,desc:'Served with carton of apple or orange juice.',mods:{choice:{label:'Choose juice',options:['Apple juice','Orange juice']}}},
+ {id:214,category:'Kids Menu',name:'1 Egg, 1 Sausage, Beans',price:5.50,desc:'Served with carton of apple or orange juice.',mods:{choice:{label:'Choose juice',options:['Apple juice','Orange juice']}}},
+ {id:215,category:'Kids Menu',name:'Kids Breakfast',price:5.50,desc:'1 egg, 1 rasher bacon & beans. Served with carton of apple or orange juice.',mods:{choice:{label:'Choose juice',options:['Apple juice','Orange juice']},remove:['Egg','Bacon','Beans']}}
+];
+
+const CATEGORY_NOTES={
+  'All Day Breakfast':'Set breakfasts are served with bread or toast and tea or coffee. Please use the item options for permitted removals and extras.',
+  'Omelettes':'Made with 3 eggs & served with a choice of chips with coleslaw or salad with coleslaw.'
+};
+const $=id=>document.getElementById(id),fmt=n=>'£'+Number(n).toFixed(2),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let cart=[],cat='All',editing=null;$('badge').textContent='TABLE '+TABLE;$('tableText').textContent=TABLE;$('successTable').textContent=TABLE;
+function categoryNote(){
+  const el=$('categoryNote');
+  const text=CATEGORY_NOTES[cat]||'';
+  el.innerHTML=text?`<strong>${esc(cat)}</strong><br>${esc(text)}`:'';
+  el.style.display=text?'block':'none';
+}
+function chips(){let cs=['All',...new Set(MENU.map(x=>x.category))];$('chips').innerHTML=cs.map(c=>`<button class="chip ${c===cat?'active':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{cat=b.dataset.c;chips();categoryNote();menu()})}
+function menu(){let a=cat==='All'?MENU:MENU.filter(x=>x.category===cat);$('grid').innerHTML=a.map(i=>`<article class="item"><h3>${esc(i.name)}</h3><p>${esc(i.desc||'Made to order.')}</p><div class="bottom"><div class="price">${i.mods?.pricedChoice?'From ':''}${fmt(i.price)}</div><button class="add" onclick="config(${i.id})">${i.mods?'Customise':'Add'}</button></div></article>`).join('')}
+function config(id){let i=MENU.find(x=>x.id===id);if(!i.mods){add(i,{});return}editing={item:i,remove:[],extras:{},choice:'',pricedChoice:'',pricedPrice:null,note:''};modal()}
+function modal(){let e=editing,m=e.item.mods||{},h=`<div class="modalcard"><button class="x" onclick="closeM()">×</button><h2>${esc(e.item.name)}</h2><div class="price">${fmt(e.item.price)}</div>${e.item.desc?`<div class="inc"><b>Menu description</b><br>${esc(e.item.desc)}</div>`:''}`;
+if(m.remove?.length)h+=`<h3>Remove an item <span class="small">(Free)</span></h3>`+m.remove.map((x,i)=>`<label class="opt"><input type="checkbox" data-r="${i}"> No ${esc(x)}</label>`).join('');
+if(m.choice)h+=`<h3>${esc(m.choice.label)}</h3>`+m.choice.options.map((x,i)=>`<label class="opt"><input type="radio" name="choice" data-choice="${i}"> ${esc(x)}</label>`).join('');
+if(m.pricedChoice)h+=`<h3>${esc(m.pricedChoice.label)}</h3>`+m.pricedChoice.options.map((x,i)=>`<label class="opt"><input type="radio" name="pchoice" data-pchoice="${i}"> ${esc(x[0])} — ${fmt(x[1])}</label>`).join('');
+if(m.extras?.length)h+=`<details><summary><b>Extras</b> — tap to add</summary>`+m.extras.map(([x,p],i)=>`<div class="extra"><span>${esc(x)} <b>${fmt(p)}</b></span><div><button onclick="ex(${i},-1)">−</button> <b id="e${i}">0</b> <button onclick="ex(${i},1)">+</button></div></div>`).join('')+`</details>`;
+h+=`<h3>Special instructions</h3><textarea id="itemNote" placeholder="Add a note for this item"></textarea><button class="primary" onclick="finish()">Add to order</button></div>`;$('modal').innerHTML=h;$('modal').style.display='flex';
+document.querySelectorAll('[data-r]').forEach(cb=>cb.onchange=()=>{let x=m.remove[+cb.dataset.r];cb.checked?(!editing.remove.includes(x)&&editing.remove.push(x)):editing.remove=editing.remove.filter(v=>v!==x)});
+document.querySelectorAll('[data-choice]').forEach(r=>r.onchange=()=>editing.choice=m.choice.options[+r.dataset.choice]);
+document.querySelectorAll('[data-pchoice]').forEach(r=>r.onchange=()=>{let x=m.pricedChoice.options[+r.dataset.pchoice];editing.pricedChoice=x[0];editing.pricedPrice=x[1]})}
+function ex(i,d){let x=editing.item.mods.extras[i][0];editing.extras[x]=Math.max(0,(editing.extras[x]||0)+d);$('e'+i).textContent=editing.extras[x]}
+function finish(){let m=editing.item.mods||{};if(m.choice&&!editing.choice){alert('Please choose an option.');return}if(m.pricedChoice&&!editing.pricedChoice){alert('Please choose Sandwich, Baguette or Panini.');return}editing.note=$('itemNote').value.trim();add(editing.item,editing);closeM()}
+function closeM(){$('modal').style.display='none';$('modal').innerHTML=''}
+function add(i,c){let base=c.pricedPrice??i.price,extra=0,extras=[];(i.mods?.extras||[]).forEach(([n,p])=>{let q=c.extras?.[n]||0;if(q){extra+=p*q;extras.push(`${q} × ${n} (+${fmt(p*q)})`)}});let choice=c.pricedChoice||c.choice||'';cart.push({key:Date.now()+Math.random(),id:i.id,name:i.name,base,unit:base+extra,qty:1,remove:[...(c.remove||[])],extras,note:c.note||'',choice});update()}
+function detail(x){let a=[];if(x.choice)a.push('CHOICE: '+x.choice);if(x.remove?.length)a.push('REMOVE: '+x.remove.join(', '));if(x.extras?.length)a.push('EXTRA: '+x.extras.join(', '));if(x.note)a.push('NOTE: '+x.note);return a}
+function totals(){return{count:cart.reduce((a,x)=>a+x.qty,0),total:cart.reduce((a,x)=>a+x.unit*x.qty,0)}}function update(){let t=totals();$('count').textContent=`${t.count} item${t.count===1?'':'s'}`;$('mini').textContent=fmt(t.total)}
+function renderCart(){$('cartLines').innerHTML=cart.map(x=>`<div class="line"><div><strong>${esc(x.name)}</strong>${detail(x).map(d=>`<div class="small">${esc(d)}</div>`).join('')}</div><strong>${fmt(x.unit*x.qty)}</strong></div>`).join('');$('cartTotal').textContent=fmt(totals().total)}
+function openCart(){if(!cart.length)return;$('menuView').style.display='none';$('cartPanel').classList.add('show');$('cartbar').style.display='none';renderCart()}function closeCart(){$('menuView').style.display='block';$('cartPanel').classList.remove('show');$('cartbar').style.display='block'}
+async function place(){if(!cart.length)return;if(!db){alert('Kitchen connection is still loading. Please refresh and try again.');return}let b=$('place');b.disabled=true;b.textContent='Sending...';let ref='PC-'+Date.now().toString().slice(-6);let items=cart.map(x=>({id:x.id,name:x.name,base:x.base,unit:x.unit,qty:x.qty,remove:[...x.remove],extras:[...x.extras],note:x.note||'',choice:x.choice||''}));let on=$('orderNote').value.trim();if(on)items.push({type:'order_note',note:on});try{let {error}=await db.from('orders').insert({table_number:TABLE,items,total:totals().total,status:'new',order_ref:ref});if(error)throw error;$('cartPanel').classList.remove('show');$('successPanel').classList.add('show');$('ref').textContent=ref}catch(e){console.error(e);alert('Your order could not be sent. Please try again.')}finally{b.disabled=false;b.textContent='Place order'}}
+function again(){cart=[];$('orderNote').value='';$('successPanel').classList.remove('show');$('menuView').style.display='block';$('cartbar').style.display='block';update()}
+$('view').onclick=openCart;$('continue').onclick=closeCart;$('place').onclick=place;$('again').onclick=again;chips();categoryNote();menu();update();
+</script></body></html>
