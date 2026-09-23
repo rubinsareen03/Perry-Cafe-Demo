@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Perry Cafe — Kitchen</title>
+<style>
+:root { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#17231d; background:#f4f1e8; }
+* { box-sizing:border-box; }
+body { margin:0; }
+header { position:sticky;top:0;z-index:5;background:#163f2b;color:white;padding:16px;box-shadow:0 2px 10px #0002; }
+h1 { margin:0;font-size:24px; }
+.sub { opacity:.8;font-size:13px;margin-top:4px; }
+main { max-width:1000px;margin:auto;padding:16px; }
+.tabs { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px; }
+.tab { border:2px solid #163f2b;background:white;color:#163f2b;border-radius:12px;padding:12px;font-weight:800;font-size:15px; }
+.tab.active { background:#163f2b;color:white; }
+.status { padding:12px 14px;border-radius:12px;background:white;margin-bottom:14px;font-weight:600; }
+.grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px; }
+.card { background:white;border-radius:16px;padding:16px;box-shadow:0 2px 10px #0001;border-top:6px solid #c7942f; }
+.doneCard { border-top-color:#789286; }
+.top { display:flex;justify-content:space-between;gap:12px;align-items:flex-start; }
+.table { font-size:25px;font-weight:800; }
+.ref { font-size:13px;color:#68736d;margin-top:3px; }
+.time { font-weight:700;white-space:nowrap; }
+.date { font-size:12px;color:#68736d;text-align:right;margin-top:3px; }
+.items { margin:16px 0;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:8px 0; }
+.item { padding:7px 0; }
+.item strong { display:block; }
+.mods { font-size:13px;color:#5e6863;margin-top:3px;white-space:pre-wrap; }
+.total { display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin:12px 0; }
+.action { width:100%;border:0;border-radius:12px;padding:13px;font-size:16px;font-weight:800;background:#163f2b;color:white; }
+.action:disabled { opacity:.5; }
+.empty { text-align:center;background:white;border-radius:16px;padding:42px 20px;color:#64706a;grid-column:1/-1; }
+.bad { background:#ffe5e5;color:#8b1f1f; }
+.hidden { display:none !important; }
+.filters { display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px; }
+.filter { flex:0 0 auto;border:1px solid #c8cec9;background:white;color:#33443b;border-radius:999px;padding:9px 12px;font-weight:700; }
+.filter.active { background:#163f2b;color:white;border-color:#163f2b; }
+.summary { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px; }
+.metric { background:white;border-radius:14px;padding:14px;box-shadow:0 2px 8px #0001; }
+.metric .label { color:#68736d;font-size:12px;font-weight:700; }
+.metric .value { font-size:22px;font-weight:900;margin-top:5px; }
+.historyRow { cursor:pointer; }
+.historyItems { display:none; }
+.historyRow.open .historyItems { display:block; }
+.tapHint { text-align:center;color:#68736d;font-size:12px;font-weight:700;margin-top:8px; }
+.inventoryGrid { display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px; }
+.inventoryCard { background:white;border-radius:14px;padding:16px;box-shadow:0 2px 8px #0001; }
+.inventoryName { color:#526159;font-size:14px;font-weight:800; }
+.inventoryQty { font-size:28px;font-weight:900;margin-top:5px;color:#163f2b; }
+.inventoryNote { font-size:12px;color:#68736d;margin:0 0 14px;line-height:1.4; }
+@media(max-width:560px){
+  .tabs { grid-template-columns:1fr; }
+  .summary { grid-template-columns:1fr; }
+  .metric { display:flex;justify-content:space-between;align-items:center; }
+  .metric .value { margin:0;font-size:20px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Perry Cafe — Kitchen</h1>
+  <div class="sub">Live orders, order history & inventory</div>
+</header>
+<main>
+  <div class="tabs">
+    <button id="liveTab" class="tab active" onclick="showView('live')">LIVE ORDERS</button>
+    <button id="historyTab" class="tab" onclick="showView('history')">ORDER HISTORY</button>
+    <button id="inventoryTab" class="tab" onclick="showView('inventory')">INVENTORY</button>
+  </div>
+  <section id="liveView">
+    <div id="status" class="status">Connecting to Perry Cafe…</div>
+    <div id="orders" class="grid"></div>
+  </section>
+  <section id="historyView" class="hidden">
+    <div class="filters historyFilters">
+      <button class="filter active" data-range="today" onclick="setRange('today',this)">Today</button>
+      <button class="filter" data-range="yesterday" onclick="setRange('yesterday',this)">Yesterday</button>
+      <button class="filter" data-range="7days" onclick="setRange('7days',this)">Last 7 Days</button>
+      <button class="filter" data-range="month" onclick="setRange('month',this)">This Month</button>
+    </div>
+    <div class="summary">
+      <div class="metric"><div class="label">COMPLETED ORDERS</div><div id="completedCount" class="value">0</div></div>
+      <div class="metric"><div class="label">ORDER VALUE</div><div id="orderValue" class="value">£0.00</div></div>
+      <div class="metric"><div class="label">AVERAGE ORDER</div><div id="averageOrder" class="value">£0.00</div></div>
+    </div>
+    <div id="historyStatus" class="status">Loading order history…</div>
+    <div id="historyOrders" class="grid"></div>
+  </section>
+  <section id="inventoryView" class="hidden">
+    <div class="filters inventoryFilters">
+      <button class="filter active" data-range="today" onclick="setInventoryRange('today',this)">Today</button>
+      <button class="filter" data-range="yesterday" onclick="setInventoryRange('yesterday',this)">Yesterday</button>
+      <button class="filter" data-range="7days" onclick="setInventoryRange('7days',this)">Last 7 Days</button>
+      <button class="filter" data-range="month" onclick="setInventoryRange('month',this)">This Month</button>
+    </div>
+    <p class="inventoryNote">Counts ingredients from completed breakfast orders, subtracting removed items and adding selected extras.</p>
+    <div id="inventoryStatus" class="status">Loading inventory usage…</div>
+    <div id="inventoryGrid" class="inventoryGrid"></div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://plwtpcqwjfqzpkrnlzfq.supabase.co';
+const SUPABASE_KEY='sb_publishable_gxMkbIdN_JF3A7PSv3OXVQ_RL_LTmKi';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const statusEl=document.getElementById('status'),ordersEl=document.getElementById('orders'),historyStatusEl=document.getElementById('historyStatus'),historyOrdersEl=document.getElementById('historyOrders'),inventoryStatusEl=document.getElementById('inventoryStatus'),inventoryGridEl=document.getElementById('inventoryGrid');
+let currentView='live',currentRange='today',inventoryRange='today';
+function money(v){return '£'+Number(v||0).toFixed(2)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function timeOf(v){return new Date(v).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}
+function dateOf(v){return new Date(v).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}
+function describeItem(x){
+ if(x?.type==='order_note')return `<div class="item"><strong>Order note</strong><div class="mods">${esc(x.note)}</div></div>`;
+ const qty=x?.qty??x?.quantity??1,name=x?.name??x?.title??x?.item??'Item';let details=[];
+ const removed=Array.isArray(x?.removed)?x.removed:(Array.isArray(x?.remove)?x.remove:[]);
+ if(x?.choice)details.push('CHOICE: '+x.choice);
+ if(removed.length)details.push('NO: '+removed.join(', '));
+ if(Array.isArray(x?.extras)&&x.extras.length)details.push('EXTRA: '+x.extras.map(e=>typeof e==='string'?e:(e.name||e.label||'')).filter(Boolean).join(', '));
+ if(x?.customText)details.push(x.customText);
+ if(x?.notes||x?.note)details.push('NOTE: '+(x.notes||x.note));
+ return `<div class="item"><strong>${esc(qty)} × ${esc(name)}</strong>${details.length?`<div class="mods">${esc(details.join('\n'))}</div>`:''}</div>`;
+}
+function renderLive(rows){
+ if(!rows.length){ordersEl.innerHTML=`<div class="empty">No new orders right now.</div>`;return}
+ ordersEl.innerHTML=rows.map(o=>`<article class="card"><div class="top"><div><div class="table">TABLE ${esc(o.table_number)}</div><div class="ref">${esc(o.order_ref||('Order #'+o.id))}</div></div><div class="time">${timeOf(o.created_at)}</div></div><div class="items">${(Array.isArray(o.items)?o.items:[]).map(describeItem).join('')}</div><div class="total"><span>Total</span><span>${money(o.total)}</span></div><button class="action" onclick="markDone(${Number(o.id)})">MARK DONE</button></article>`).join('');
+}
+function renderHistory(rows){
+ const total=rows.reduce((sum,o)=>sum+Number(o.total||0),0);
+ document.getElementById('completedCount').textContent=rows.length;document.getElementById('orderValue').textContent=money(total);document.getElementById('averageOrder').textContent=money(rows.length?total/rows.length:0);
+ historyStatusEl.textContent=`${rows.length} completed order${rows.length===1?'':'s'} • newest first`;
+ if(!rows.length){historyOrdersEl.innerHTML=`<div class="empty">No completed orders in this period.</div>`;return}
+ historyOrdersEl.innerHTML=rows.map(o=>`<article class="card doneCard historyRow" onclick="this.classList.toggle('open')"><div class="top"><div><div class="table">TABLE ${esc(o.table_number)}</div><div class="ref">${esc(o.order_ref||('Order #'+o.id))}</div></div><div><div class="time">${timeOf(o.created_at)}</div><div class="date">${dateOf(o.created_at)}</div></div></div><div class="total"><span>Total</span><span>${money(o.total)}</span></div><div class="historyItems items">${(Array.isArray(o.items)?o.items:[]).map(describeItem).join('')}</div><div class="tapHint">Tap to view/hide order details</div></article>`).join('');
+}
+async function loadOrders(){
+ const {data,error}=await db.from('orders').select('*').eq('status','new').order('created_at',{ascending:false});
+ if(error){console.error(error);statusEl.textContent='Could not load orders — check Supabase permissions.';statusEl.classList.add('bad');return}
+ statusEl.classList.remove('bad');statusEl.textContent=`Live • ${data.length} new order${data.length===1?'':'s'}`;renderLive(data);
+}
+function rangeBounds(range){
+ const now=new Date();let start,end;
+ if(range==='today'){start=new Date(now.getFullYear(),now.getMonth(),now.getDate());end=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)}
+ else if(range==='yesterday'){start=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1);end=new Date(now.getFullYear(),now.getMonth(),now.getDate())}
+ else if(range==='7days'){start=new Date(now.getFullYear(),now.getMonth(),now.getDate()-6);end=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)}
+ else{start=new Date(now.getFullYear(),now.getMonth(),1);end=new Date(now.getFullYear(),now.getMonth()+1,1)}
+ return{start:start.toISOString(),end:end.toISOString()};
+}
+async function loadHistory(){
+ const {start,end}=rangeBounds(currentRange);historyStatusEl.textContent='Loading order history…';historyStatusEl.classList.remove('bad');
+ const {data,error}=await db.from('orders').select('*').eq('status','done').gte('created_at',start).lt('created_at',end).order('created_at',{ascending:false});
+ if(error){console.error(error);historyStatusEl.textContent='Could not load order history — check Supabase permissions.';historyStatusEl.classList.add('bad');renderHistory([]);return}
+ renderHistory(data||[]);
+}
+
+/* Inventory recipe map. Counts physical pieces/portions used by the seven breakfasts. */
+const RECIPES={
+ 'Small Breakfast':{'Eggs':1,'Bacon rashers':2,'Sausages':1,'Beans portions':1},
+ 'Traditional Breakfast':{'Eggs':1,'Bacon rashers':2,'Sausages':1,'Chips portions':1,'Beans portions':1},
+ 'Early Starter':{'Eggs':2,'Bacon rashers':2,'Hash browns':2,'Tomatoes portions':1,'Beans portions':1},
+ 'The Brunch Breakfast':{'Eggs':2,'Bacon rashers':2,'Sausages':2,'Tomatoes portions':1,'Mushrooms portions':1},
+ 'Perry Special':{'Eggs':1,'Bacon rashers':2,'Sausages':1,'Black pudding pieces':3,'Bubble portions':1,'Beans portions':1},
+ 'Classic Breakfast':{'Eggs':2,'Bacon rashers':2,'Sausages':2,'Beans portions':1,'Mushrooms portions':1,'Tomatoes portions':1},
+ 'Sunrise Breakfast':{'Eggs':2,'Bacon rashers':2,'Sausages':2,'Chips portions':1,'Hash browns':2,'Mushrooms portions':1,'Tomatoes portions':1,'Beans portions':1}
+};
+const REMOVE_KEYS={
+ 'egg':['Eggs'],'eggs':['Eggs'],'scrambled egg':['Eggs'],
+ 'bacon':['Bacon rashers'],'sausage':['Sausages'],'sausages':['Sausages'],
+ 'beans':['Beans portions'],'chips':['Chips portions'],'hash browns':['Hash browns'],
+ 'hash brown':['Hash browns'],'tomato':['Tomatoes portions'],'tomatoes':['Tomatoes portions'],
+ 'mushrooms':['Mushrooms portions'],'mushroom':['Mushrooms portions'],
+ 'black pudding':['Black pudding pieces'],'bubble':['Bubble portions']
+};
+const EXTRA_MAP=[
+ [/fried slice/i,'Fried slice pieces'],[/toast/i,'Toast slices'],[/scrambled egg/i,'Eggs'],[/\begg\b/i,'Eggs'],
+ [/beans/i,'Beans portions'],[/coleslaw/i,'Coleslaw portions'],[/tomato/i,'Tomatoes portions'],[/mushroom/i,'Mushrooms portions'],
+ [/fried onions/i,'Fried onions portions'],[/onion rings/i,'Onion rings'],[/beef burger/i,'Beef burgers'],[/\bham\b/i,'Ham portions'],
+ [/bacon/i,'Bacon rashers'],[/frankfurter/i,'Frankfurters'],[/\bliver\b/i,'Liver portions'],[/black pudding/i,'Black pudding pieces'],
+ [/sausage/i,'Sausages'],[/bubble/i,'Bubble portions'],[/chips/i,'Chips portions'],[/mash potato/i,'Mash potato portions'],[/hash brown/i,'Hash browns']
+];
+function addCount(out,key,n){out[key]=(out[key]||0)+Number(n||0);if(out[key]<0)out[key]=0}
+function inventoryFrom(rows){
+ const out={};
+ rows.forEach(o=>(Array.isArray(o.items)?o.items:[]).forEach(x=>{
+   if(x?.type==='order_note')return;
+   const qty=Number(x?.qty??x?.quantity??1)||1, recipe=RECIPES[x?.name];
+   if(recipe){
+     Object.entries(recipe).forEach(([k,n])=>addCount(out,k,n*qty));
+     const removed=Array.isArray(x?.removed)?x.removed:(Array.isArray(x?.remove)?x.remove:[]);
+     removed.forEach(r=>{
+       const keys=REMOVE_KEYS[String(r).trim().toLowerCase()]||[];
+       keys.forEach(k=>{ const recipeQty=recipe[k]||0; if(recipeQty)addCount(out,k,-recipeQty*qty); });
+     });
+   }
+   (Array.isArray(x?.extras)?x.extras:[]).forEach(e=>{
+     const s=typeof e==='string'?e:(e?.name||e?.label||'');
+     const m=String(s).match(/^\s*(\d+)\s*[×x]\s*(.+?)(?:\s*\(\+£.*)?$/i);
+     const count=m?Number(m[1]):1, label=m?m[2]:String(s);
+     for(const [re,key] of EXTRA_MAP){if(re.test(label)){addCount(out,key,count*qty);break}}
+   });
+ }));
+ return out;
+}
+function renderInventory(rows){
+ const counts=inventoryFrom(rows);
+ const entries=Object.entries(counts).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+ inventoryStatusEl.textContent=`${rows.length} completed order${rows.length===1?'':'s'} analysed`;
+ if(!entries.length){inventoryGridEl.innerHTML=`<div class="empty">No tracked ingredients used in this period.</div>`;return}
+ inventoryGridEl.innerHTML=entries.map(([name,qty])=>`<div class="inventoryCard"><div class="inventoryName">${esc(name)}</div><div class="inventoryQty">${esc(qty)}</div></div>`).join('');
+}
+async function loadInventory(){
+ const {start,end}=rangeBounds(inventoryRange);inventoryStatusEl.textContent='Loading inventory usage…';inventoryStatusEl.classList.remove('bad');
+ const {data,error}=await db.from('orders').select('items,created_at,status').eq('status','done').gte('created_at',start).lt('created_at',end).order('created_at',{ascending:false});
+ if(error){console.error(error);inventoryStatusEl.textContent='Could not load inventory — check Supabase permissions.';inventoryStatusEl.classList.add('bad');inventoryGridEl.innerHTML='';return}
+ renderInventory(data||[]);
+}
+function showView(view){
+ currentView=view;
+ document.getElementById('liveView').classList.toggle('hidden',view!=='live');
+ document.getElementById('historyView').classList.toggle('hidden',view!=='history');
+ document.getElementById('inventoryView').classList.toggle('hidden',view!=='inventory');
+ document.getElementById('liveTab').classList.toggle('active',view==='live');
+ document.getElementById('historyTab').classList.toggle('active',view==='history');
+ document.getElementById('inventoryTab').classList.toggle('active',view==='inventory');
+ if(view==='history')loadHistory();
+ if(view==='inventory')loadInventory();
+}
+function setRange(range,el){currentRange=range;document.querySelectorAll('.historyFilters .filter').forEach(x=>x.classList.remove('active'));el.classList.add('active');loadHistory()}
+function setInventoryRange(range,el){inventoryRange=range;document.querySelectorAll('.inventoryFilters .filter').forEach(x=>x.classList.remove('active'));el.classList.add('active');loadInventory()}
+async function markDone(id){
+ const {error}=await db.from('orders').update({status:'done'}).eq('id',id);
+ if(error){alert('Could not mark this order as done.');console.error(error);return}
+ await loadOrders();if(currentView==='history')await loadHistory();if(currentView==='inventory')await loadInventory();
+}
+db.channel('perry-kitchen').on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>{loadOrders();if(currentView==='history')loadHistory();if(currentView==='inventory')loadInventory()}).subscribe(state=>{if(state==='SUBSCRIBED')loadOrders()});
+loadOrders();
+</script>
+</body>
+</html>
