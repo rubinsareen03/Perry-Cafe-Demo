@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Perry Cafe — Table Ordering</title>
+<style>
+:root{--burgundy:#5b1f2a;--burgundy2:#7a2b39;--cream:#fff7e8;--gold:#d6aa54;--ink:#211f1d;--muted:#6f6860;--card:#fff;--line:#eadfce;--success:#1f7a45}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--cream);color:var(--ink)}
+.top{background:linear-gradient(135deg,var(--burgundy),var(--burgundy2));color:#fff;padding:22px 18px 18px;position:sticky;top:0;z-index:10;box-shadow:0 4px 14px rgba(0,0,0,.12);transition:padding .2s ease}
+.top-row{max-width:980px;margin:auto;display:flex;gap:12px;align-items:center;justify-content:space-between}.brand h1{font-size:25px;margin:0;font-weight:800}.brand p{margin:4px 0 0;opacity:.88;font-size:13px}
+.table-badge{background:var(--gold);color:#2d1d0b;font-weight:800;padding:8px 11px;border-radius:999px;white-space:nowrap}
+.view-toggle{max-width:980px;margin:12px auto 0;display:flex;gap:8px}.view-toggle button{flex:1;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;padding:9px 10px;border-radius:10px;font-weight:700}.view-toggle button.active{background:#fff;color:var(--burgundy)}#kitchenTab{display:none!important}.view-toggle #customerTab{flex:1 1 100%}
+main{max-width:980px;margin:auto;padding:16px 14px 110px}.hero,.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 6px 18px rgba(71,45,20,.06);margin-bottom:14px}.hero h2{margin:0 0 6px;font-size:20px}.hero p{margin:0;color:var(--muted);line-height:1.45}
+.chips{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.chip{border:1px solid var(--line);background:#fff;color:var(--burgundy);padding:9px 12px;border-radius:999px;font-weight:700;white-space:nowrap}.chip.active{background:var(--burgundy);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 5px 14px rgba(71,45,20,.05);display:flex;flex-direction:column;min-height:142px}.item h3{font-size:16px;margin:0 0 5px}.item p{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.35}.item-bottom{margin-top:auto;display:flex;align-items:center;justify-content:space-between}.price{font-size:18px;font-weight:800;color:var(--burgundy)}.add,.primary{border:0;background:var(--burgundy);color:#fff;padding:10px 13px;border-radius:10px;font-weight:800}.primary{width:100%;font-size:16px}
+.cartbar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));z-index:20}.cartbar-inner{max-width:980px;margin:auto;display:flex;gap:10px}.cart-summary{flex:1}.cart-summary strong{display:block}.cart-summary span,.small{font-size:12px;color:var(--muted)}.checkout{border:0;background:var(--burgundy);color:#fff;padding:11px 16px;border-radius:12px;font-weight:800;min-width:145px}
+.panel{display:none}.panel.show{display:block}.cart-line{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.remove-cart{display:inline-block;margin-top:8px;border:1px solid #b73a3a;background:#fff;color:#9b2222;padding:7px 10px;border-radius:9px;font-weight:800}.qtybox{display:flex;align-items:center;gap:7px}.qtybox button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:#fff}
+textarea{width:100%;min-height:88px;border:1px solid var(--line);border-radius:12px;padding:11px;font:inherit}.secondary{width:100%;border:1px solid var(--burgundy);background:#fff;color:var(--burgundy);padding:11px;border-radius:12px;font-weight:800}.total{display:flex;justify-content:space-between;font-weight:800;font-size:18px;padding:14px 0}.notice{padding:12px;border-radius:12px;background:#f7efe1;border:1px solid #ead6ae;color:#4c3a1e;font-size:13px;line-height:1.4;margin:12px 0}.success{background:#eef8f2;border:1px solid #cfe9d9;color:#185b35;padding:18px;border-radius:16px;text-align:center}.success .tick{font-size:42px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;align-items:flex-end;justify-content:center}.modal-card{background:#fff;width:min(680px,100%);max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}.x{position:absolute;right:14px;top:12px;border:0;background:#eee;width:34px;height:34px;border-radius:50%;font-size:24px}.opt{display:block;padding:10px 0;border-bottom:1px solid var(--line)}details{margin:12px 0;border:1px solid var(--line);border-radius:12px;padding:12px}.extra{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.extra button{width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:8px;margin:0 7px}.included-box{margin:14px 0 18px;padding:13px 14px;background:#fff7e8;border:1px solid var(--line);border-radius:12px;line-height:1.45}.included-box b{display:block;color:var(--burgundy);margin-bottom:4px}.top.compact{padding-top:10px;padding-bottom:10px}.top.compact .brand p{display:none}.top.compact .view-toggle{margin-top:7px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.brand h1{font-size:22px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-row"><div class="brand"><h1>PERRY CAFE</h1><p>Friendly staff • Friendly atmosphere • Great food</p></div><div class="table-badge">TABLE 1</div></div><div class="view-toggle"><button id="customerTab" class="active">Customer Menu</button><button id="kitchenTab">Kitchen Demo</button></div></header>
+<main><section id="customerView"><div class="hero"><h2>Order from your table</h2><p>Choose your food and drinks, then send your order straight to the kitchen. No online payment — pay as normal at the till.</p></div><div class="chips" id="chips"></div><div class="grid" id="menuGrid"></div>
+<div id="cartPanel" class="panel"><h2>Your order</h2><div id="cartLines"></div><label><strong>Special instructions</strong></label><textarea id="notes" placeholder="Add an order note..."></textarea><div class="total"><span>Total</span><span id="cartTotal">£0.00</span></div><div class="notice">Your order will be sent to the kitchen for Table <span id="noticeTable"></span>.</div><button class="primary" id="placeBtn">Place order</button><br><br><button class="secondary" id="continueBtn">Continue ordering</button></div>
+<div id="successPanel" class="panel"><div class="success"><div class="tick">✓</div><h2>Order sent to kitchen</h2><p>Table <span id="successTable"></span> • <span id="successOrderNo"></span></p></div><br><button class="primary" id="newBtn">Start another order</button></div></section>
+<section id="kitchenView" style="display:none"><div class="hero"><h2>Kitchen order screen</h2><p>The live kitchen screen is connected separately to Supabase.</p></div></section></main>
+<div id="modal" class="modal"></div>
+<div class="cartbar" id="cartbar"><div class="cartbar-inner"><div class="cart-summary"><strong id="cartCount">0 items</strong><span id="cartMiniTotal">£0.00</span></div><button class="checkout" id="checkoutBtn">View order</button></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const TABLE=Math.min(22,Math.max(1,Number(new URLSearchParams(location.search).get('table'))||1));
+let DISCOUNT_ENABLED=false,DISCOUNT_PERCENT=0,DISCOUNT_LABEL='Discount';
+const BREAKFAST_EXTRAS=[['Fried Slice (1 pc)',1.10],['Toast (2 slices)',1.60],['Egg',.80],['Scrambled Egg (2 eggs)',3.20],['Beans',1.80],['Coleslaw',1.80],['Tomato',1.80],['Mushrooms',2.10],['Fried Onions',1.80],['Onion Rings (8 pcs)',2.70],['Beef Burger',2.50],['Ham',2.50],['Bacon (2 rashers)',2.70],['Frankfurter',2.10],['Liver',3],['Black Pudding (3 pcs)',2.10],['Sausage (1 pc)',2.10],['Bubble',2.20],['Chips',2.50],['Mash Potato',2.50],['Hash Brown',2]];
+const breakfast=(id,name,price,desc,remove)=>({id,category:'All Day Breakfast',name,price,desc,mods:{remove,extras:BREAKFAST_EXTRAS}});
+let MENU=[
+breakfast(1,'Small Breakfast',6.20,'Egg, 2 bacon, sausage, beans',['Egg','Bacon','Sausage','Beans']),
+breakfast(2,'Traditional Breakfast',7.20,'Egg, 2 bacon, sausage, chips, beans',['Egg','Bacon','Sausage','Chips','Beans']),
+breakfast(3,'Early Starter',8.20,'Scrambled egg, 2 bacon, 2 hash browns, tomatoes, beans',['Scrambled Egg','Bacon','Hash Browns','Tomatoes','Beans']),
+breakfast(4,'The Brunch Breakfast',8.50,'2 eggs, 2 bacon, 2 sausages, tomatoes, mushrooms',['Eggs','Bacon','Sausages','Tomatoes','Mushrooms']),
+breakfast(5,'Perry Special',8.90,'Egg, 2 bacon, sausage, black pudding, bubble, beans',['Egg','Bacon','Sausage','Black Pudding','Bubble','Beans']),
+breakfast(6,'Classic Breakfast',9.20,'2 eggs, 2 bacon, 2 sausages, beans, mushrooms, tomato',['Eggs','Bacon','Sausages','Beans','Mushrooms','Tomato']),
+breakfast(7,'Sunrise Breakfast',10.40,'2 eggs, 2 bacon, 2 sausages, chips, 2 hash browns, mushrooms, tomato, beans',['Eggs','Bacon','Sausages','Chips','Hash Browns','Mushrooms','Tomato','Beans']),
+{id:103,category:'Soft Drinks',name:'Apple Juice',price:2.40,desc:''},{id:104,category:'Soft Drinks',name:'Red Bull',price:2.50,desc:''}
+];
+const SUPABASE_URL='https://plwtpcqwjfqzpkrnlzfq.supabase.co';
+const SUPABASE_KEY='sb_publishable_gxMkbIdN_JF3A7PSv3OXVQ_RL_LTmKi';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id), fmt=n=>'£'+Number(n).toFixed(2), esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+let cart=[],activeCategory='All',editing=null;
+$('.table-badge')?.remove;
+document.querySelector('.table-badge').textContent=`TABLE ${TABLE}`;$('noticeTable').textContent=TABLE;$('successTable').textContent=TABLE;
+
+const SANDWICH_PRICES={
+'Egg':[3.80,4.30,4.50],
+'Bacon':[4.10,4.50,4.70],
+'Sausage':[4.10,4.50,4.70],
+'Egg Bacon':[4.50,4.90,5.10],
+'Egg Sausage':[4.50,4.90,5.10],
+'Egg, Bacon & Sausage':[5.30,5.70,5.90],
+'B.L.T.':[5.00,5.30,5.50],
+'Ham & Cheese':[5.00,5.30,5.50],
+'Tuna Mayo':[5.00,5.30,5.50],
+'Chicken Salad':[5.80,6.80,7.00],
+'Prawn':[6.20,6.80,7.00]
+};
+const SANDWICH_TYPES=['Sandwich or Roll','Baguette','Panini'];
+function applySandwichOptions(){
+  MENU=MENU.map(i=>{
+    if(i.category!=='Sandwiches')return i;
+    const prices=SANDWICH_PRICES[i.name];
+    if(!prices)return i;
+    return {...i,price:prices[0],mods:{...(i.mods||{}),sandwichTypes:SANDWICH_TYPES.map((name,idx)=>[name,prices[idx]]),sandwichToppings:[['Cheese',1.20],['Onion',1.20],['Salad',1.20]]}};
+  });
+}
+function renderChips(){let cats=['All',...new Set(MENU.map(x=>x.category))];$('chips').innerHTML=cats.map(c=>`<button class="chip ${c===activeCategory?'active':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{activeCategory=b.dataset.c;renderChips();renderMenu()})}
+function renderMenu(){let a=activeCategory==='All'?MENU:MENU.filter(x=>x.category===activeCategory);$('menuGrid').innerHTML=a.map(i=>`<article class="item"><h3>${esc(i.name)}</h3><p>${esc(i.desc||'Made to order.')}</p><div class="item-bottom"><div class="price">${fmt(i.price)}</div><button class="add" onclick="configure(${i.id})">${i.mods?'Customise':'Add'}</button></div></article>`).join('')}
+function configure(id){let i=MENU.find(x=>x.id===id);if(!i.mods){addConfigured(i,{});return}editing={item:i,remove:[],extras:{},note:'',choice:'',choicePrice:null};showModal()}
+function showModal(){let e=editing,m=e.item.mods||{},h=`<div class="modal-card"><button class="x" onclick="closeModal()">×</button><h2>${esc(e.item.name)}</h2><div class="price" id="modalPrice">${fmt(e.item.price)}</div><div class="included-box"><b>Includes:</b>${esc(e.item.desc)}</div>`;
+if(m.sandwichTypes?.length)h+=`<h3>Choose type</h3>`+m.sandwichTypes.map(([x,p],i)=>`<label class="opt"><input type="radio" name="sandwichType" data-sandwich-index="${i}" ${i===0?'checked':''}> ${esc(x)} — <b>${fmt(p)}</b></label>`).join('');
+if(m.sandwichToppings?.length)h+=`<details><summary><b>Extra toppings</b> — £1.20 each</summary>`+m.sandwichToppings.map(([x,p],i)=>`<div class="extra"><span>${esc(x)} <b>${fmt(p)}</b></span><div><button type="button" onclick="sandwichExtra(${i},-1)">−</button><b id="st-${i}">0</b><button type="button" onclick="sandwichExtra(${i},1)">+</button></div></div>`).join('')+`</details>`;
+if(m.remove?.length)h+=`<h3>Remove an item <span class="small">(Free)</span></h3>`+m.remove.map((x,i)=>`<label class="opt"><input type="checkbox" data-remove-index="${i}"> No ${esc(x)}</label>`).join('');
+if(m.extras?.length)h+=`<details><summary><b>Extras</b> — tap to add</summary>`+m.extras.map(([x,p],i)=>`<div class="extra"><span>${esc(x)} <b>${fmt(p)}</b></span><div><button type="button" onclick="extra(${i},-1)">−</button><b id="ex-${i}">0</b><button type="button" onclick="extra(${i},1)">+</button></div></div>`).join('')+`</details>`;
+h+=`<h3>Special instructions</h3><textarea id="itemNote" placeholder="Add a note for this item"></textarea><button class="primary" onclick="finishConfig()">Add to order</button></div>`;$('modal').innerHTML=h;$('modal').style.display='flex';
+if(m.sandwichTypes?.length){
+  editing.choice=m.sandwichTypes[0][0]; editing.choicePrice=m.sandwichTypes[0][1];
+  document.querySelectorAll('[data-sandwich-index]').forEach(rb=>rb.addEventListener('change',()=>{
+    const [name,price]=m.sandwichTypes[Number(rb.dataset.sandwichIndex)];
+    editing.choice=name;editing.choicePrice=price;$('modalPrice').textContent=fmt(price);
+  }));
+}
+document.querySelectorAll('[data-remove-index]').forEach(cb=>cb.addEventListener('change',()=>{let x=m.remove[Number(cb.dataset.removeIndex)];if(cb.checked){if(!editing.remove.includes(x))editing.remove.push(x)}else editing.remove=editing.remove.filter(v=>v!==x)}))}
+function extra(i,d){let [x]=editing.item.mods.extras[i];editing.extras[x]=Math.max(0,(editing.extras[x]||0)+d);$('ex-'+i).textContent=editing.extras[x]}
+function sandwichExtra(i,d){let [x]=editing.item.mods.sandwichToppings[i];editing.extras[x]=Math.max(0,(editing.extras[x]||0)+d);$('st-'+i).textContent=editing.extras[x]}
+function finishConfig(){editing.note=$('itemNote').value.trim();addConfigured(editing.item,editing);closeModal()}
+function closeModal(){$('modal').style.display='none';$('modal').innerHTML=''}
+function addConfigured(i,c){
+let extraTotal=0,extraLines=[];
+(i.mods?.extras||[]).forEach(([n,p])=>{let q=c.extras?.[n]||0;if(q){extraTotal+=p*q;extraLines.push(`${q} × ${n} (+${fmt(p*q)})`)}});
+(i.mods?.sandwichToppings||[]).forEach(([n,p])=>{let q=c.extras?.[n]||0;if(q){extraTotal+=p*q;extraLines.push(`${q} × ${n} (+${fmt(p*q)})`)}});
+let basePrice=c.choicePrice!=null?Number(c.choicePrice):Number(i.price);
+cart.push({key:Date.now()+Math.random(),id:i.id,name:i.name,base:basePrice,unit:basePrice+extraTotal,qty:1,remove:[...(c.remove||[])],extras:[...extraLines],note:c.note||'',choice:c.choice||''});updateCartBar()}
+function details(x){let a=[];if(x.choice)a.push('CHOICE: '+x.choice);if(Array.isArray(x.remove)&&x.remove.length)a.push('REMOVE: '+x.remove.join(', '));if(Array.isArray(x.extras)&&x.extras.length)a.push('EXTRA: '+x.extras.join(', '));if(x.note)a.push('NOTE: '+x.note);return a}
+function totals(){
+let count=cart.reduce((a,x)=>a+x.qty,0);
+let subtotal=cart.reduce((a,x)=>a+x.unit*x.qty,0);
+let discount=(DISCOUNT_ENABLED&&DISCOUNT_PERCENT>0)?subtotal*(DISCOUNT_PERCENT/100):0;
+return{count,subtotal,discount,total:Math.max(0,subtotal-discount)}
+}
+function updateCartBar(){let t=totals();$('cartCount').textContent=`${t.count} item${t.count===1?'':'s'}`;$('cartMiniTotal').textContent=fmt(t.total)}
+function removeFromCart(key){cart=cart.filter(x=>String(x.key)!==String(key));updateCartBar();if(!cart.length){closeCart();return}renderCart()}
+function renderCart(){
+let t=totals();
+$('cartLines').innerHTML=cart.map(x=>`<div class="cart-line"><div><strong>${esc(x.name)}</strong>${details(x).map(d=>`<div class="small">${esc(d)}</div>`).join('')}<button type="button" class="remove-cart" data-remove-key="${esc(x.key)}">Remove from order</button></div><strong>${fmt(x.unit*x.qty)}</strong></div>`).join('');
+if(DISCOUNT_ENABLED&&DISCOUNT_PERCENT>0){
+$('cartLines').innerHTML+=`<div class="cart-line"><div><strong>Subtotal</strong></div><strong>${fmt(t.subtotal)}</strong></div><div class="cart-line"><div><strong>${esc(DISCOUNT_LABEL)} (${DISCOUNT_PERCENT}%)</strong></div><strong>-${fmt(t.discount)}</strong></div>`;
+}
+document.querySelectorAll('[data-remove-key]').forEach(b=>b.onclick=()=>removeFromCart(b.dataset.removeKey));
+$('cartTotal').textContent=fmt(t.total)
+}
+function openCart(){if(!cart.length)return;$('menuGrid').style.display='none';$('chips').style.display='none';document.querySelector('#customerView .hero').style.display='none';$('cartPanel').classList.add('show');$('cartbar').style.display='none';renderCart()}
+function closeCart(){$('menuGrid').style.display='grid';$('chips').style.display='flex';document.querySelector('#customerView .hero').style.display='block';$('cartPanel').classList.remove('show');$('cartbar').style.display='block'}
+async function placeOrder(){if(!cart.length)return;let btn=$('placeBtn');btn.disabled=true;btn.textContent='Sending...';let orderNo='PC-'+Date.now().toString().slice(-6);
+let orderItems=cart.map(x=>({id:x.id,name:x.name,base:x.base,unit:x.unit,qty:x.qty,remove:Array.isArray(x.remove)?[...x.remove]:[],removed:Array.isArray(x.remove)?[...x.remove]:[],extras:Array.isArray(x.extras)?[...x.extras]:[],note:x.note||'',notes:x.note||'',choice:x.choice||''}));
+let orderNote=$('notes').value.trim();if(orderNote)orderItems.push({type:'order_note',note:orderNote});
+try{let {error}=await db.from('orders').insert({table_number:TABLE,items:orderItems,total:totals().total,status:'new',order_ref:orderNo});if(error)throw error;$('cartPanel').classList.remove('show');$('successPanel').classList.add('show');$('successOrderNo').textContent=orderNo}catch(e){console.error(e);alert('Your order could not be sent. Please try again.')}finally{btn.disabled=false;btn.textContent='Place order'}}
+function newOrder(){cart=[];$('notes').value='';$('successPanel').classList.remove('show');$('menuGrid').style.display='grid';$('chips').style.display='flex';document.querySelector('#customerView .hero').style.display='block';$('cartbar').style.display='block';updateCartBar()}
+$('checkoutBtn').onclick=openCart;$('continueBtn').onclick=closeCart;$('placeBtn').onclick=placeOrder;$('newBtn').onclick=newOrder;
+$('customerTab').onclick=()=>{};$('kitchenTab').onclick=()=>{alert('Use the separate live Perry Cafe Kitchen screen for kitchen orders.')};
+window.addEventListener('scroll',()=>document.querySelector('.top').classList.toggle('compact',(window.scrollY||0)>80),{passive:true});
+async function loadRemoteMenuSafe(){try{
+const {data,error}=await db.from('menu_config').select('menu,discount_enabled,discount_percent,discount_label').eq('id','perry-cafe').single();
+if(error)throw error;
+DISCOUNT_ENABLED=!!data?.discount_enabled;
+DISCOUNT_PERCENT=Math.max(0,Number(data?.discount_percent||0));
+DISCOUNT_LABEL=(data?.discount_label||'Discount').toString();
+if(!Array.isArray(data?.menu)||!data.menu.length)return;
+const builtInById=new Map(MENU.map(x=>[String(x.id),x]));
+const merged=data.menu.map(remote=>{
+const base=builtInById.get(String(remote.id));
+if(!base)return remote;
+const out={...base,...remote};
+const rm=remote?.mods;
+const has=rm&&typeof rm==='object'&&Object.keys(rm).length>0;
+out.mods=has?{...(base.mods||{}),...rm}:base.mods;
+return out;
+});
+const ids=new Set(merged.map(x=>String(x.id)));
+MENU=[...merged,...MENU.filter(x=>!ids.has(String(x.id)))];
+}catch(e){console.warn('Using built-in menu because remote menu could not be loaded:',e);}}
+async function init(){await loadRemoteMenuSafe();applySandwichOptions();renderChips();renderMenu();updateCartBar();}
+init();
+</script></body></html>
